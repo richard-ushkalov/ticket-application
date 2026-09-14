@@ -35,6 +35,8 @@
                 if (sessionStorage.getItem('splash-shown')) document.documentElement.classList.add('no-splash');
             } catch { /* хранилище недоступно — просто покажем splash */ }
         </script>
+        <script src="common.js"></script>
+        <script src="vendor/jsQR.js" defer></script>
         <script src="app.js" defer></script>
     </head>
     <body>
@@ -58,7 +60,7 @@
             <div class="main">
                 <button class="register-a-trip button button--action">REGISTER A TRIP</button>
                 <button class="ticket-for-control button button--inactive">TICKET FOR CONTROL</button>
-                <button class="my-tickets button button">MY TICKETS (0)</button>
+                <a class="my-tickets button" href="my-tickets.html">MY TICKETS (0)</a>
 
                 <div class="main__additional">
                     <button class="routes-and-schedules button">ROUTES AND SCHEDULES</button>
@@ -66,7 +68,7 @@
             </div>
 
             <div class="footer">
-                <button class="footer__buy-a-ticket button button--action">BUY A TICKET</button>
+                <a class="footer__buy-a-ticket button button--action" href="buy-ticket.html">BUY A TICKET</a>
                 <span class="footer__contacts text">
                     Informative phone
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -105,13 +107,13 @@
                 <span class="camera-layer__corner camera-layer__corner--br"></span>
             </div>
 
-            <div class="camera-layer__header">
-                <button type="button" class="camera-layer__back" id="cam-close" aria-label="Back">
+            <div class="page-header camera-layer__header">
+                <button type="button" class="page-header__back" id="cam-close" aria-label="Back">
                     <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="m15 18-6-6 6-6"/>
                     </svg>
                 </button>
-                <h1 class="camera-layer__title text">SCAN QR CODE</h1>
+                <h1 class="page-header__title text">SCAN QR CODE</h1>
             </div>
 
             <p class="camera-layer__error text" hidden>Camera access denied</p>
@@ -120,5 +122,14 @@
                 <button type="button" class="button">ENTER THE CODE MANUALLY</button>
             </div>
         </div>
+
+        <!-- плашка после распознавания; showModal() кладёт её поверх всего, включая камеру -->
+        <dialog class="dialog qr-dialog">
+            <form method="dialog">
+                <h2 class="dialog__title">QR code found</h2>
+                <p class="dialog__text qr-dialog__value"></p>
+                <button class="button button--action dialog__button">OK</button>
+            </form>
+        </dialog>
     </body>
 </html>

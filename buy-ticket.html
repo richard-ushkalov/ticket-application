@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+        <title>Buy a ticket — Rigas Satiksme</title>
+
+        <meta name="theme-color" content="#07063E">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="Satiksme">
+        <link rel="manifest" href="manifest.webmanifest">
+        <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
+
+        <link rel="stylesheet" href="style.css">
+        <script src="common.js"></script>
+        <script src="buy-ticket.js" defer></script>
+    </head>
+    <body>
+        <!-- иконки, которые повторяются: рисуем один раз, используем через <use href="#..."> -->
+        <svg class="visually-hidden" aria-hidden="true">
+            <symbol id="icon-caret" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M7 10l5 5 5-5z"/>
+            </symbol>
+            <symbol id="icon-bank" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M4 10h3v7H4zm6.5 0h3v7h-3zM2 19h20v3H2zm15-9h3v7h-3zm-5-9L2 6v2h20V6z"/>
+            </symbol>
+            <symbol id="icon-card" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+            </symbol>
+            <symbol id="icon-wallet" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
+            </symbol>
+        </svg>
+
+        <div class="layout">
+            <div class="page-header">
+                <a class="page-header__back" href="index.html" data-back aria-label="Back">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                </a>
+                <h1 class="page-header__title text">BUY A TICKET</h1>
+            </div>
+
+            <div class="purchase">
+                <div class="order">
+                    <label class="order__type">
+                        <svg class="ticket-badge" viewBox="0 0 44 28" aria-hidden="true">
+                            <path fill="#141A5B" d="M4 0h36a4 4 0 0 1 4 4v6.5a3.5 3.5 0 0 0 0 7V24a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4v-6.5a3.5 3.5 0 0 0 0-7V4a4 4 0 0 1 4-4z"/>
+                            <circle cx="22" cy="14" r="9.5" fill="none" stroke="#B1D75A" stroke-width="1.6" stroke-dasharray="52 8" transform="rotate(-60 22 14)"/>
+                            <text class="ticket-badge__text" x="22" y="17" text-anchor="middle">90</text>
+                        </svg>
+                        <span class="visually-hidden">Ticket type</span>
+                        <!-- цена и подпись на иконке лежат прямо в data-атрибутах -->
+                        <select class="order__select">
+                            <option value="90min" data-badge="90" data-price="1.50" selected>90 minutes</option>
+                            <option value="24h" data-badge="24h" data-price="5.00">24 hours</option>
+                            <option value="3d" data-badge="3d" data-price="10.00">3 days</option>
+                            <option value="5d" data-badge="5d" data-price="15.00">5 days</option>
+                            <option value="30d" data-badge="30d" data-price="30.00">30 days</option>
+                        </select>
+                        <svg class="icon order__caret" aria-hidden="true"><use href="#icon-caret"/></svg>
+                    </label>
+
+                    <div class="order__row">
+                        <span>Quantity</span>
+                        <div class="stepper">
+                            <button type="button" class="stepper__button stepper__button--minus" aria-label="Decrease quantity">−</button>
+                            <output class="stepper__value" aria-live="polite">1</output>
+                            <button type="button" class="stepper__button stepper__button--plus" aria-label="Increase quantity">+</button>
+                        </div>
+                    </div>
+
+                    <div class="order__row order__row--amount">
+                        <span>Amount</span>
+                        <output class="order__amount">€ 1.50</output>
+                    </div>
+                </div>
+
+                <div class="payment">
+                    <span class="payment__label text" id="payment-label">Payment method</span>
+
+                    <div class="dropdown">
+                        <button type="button" class="field dropdown__toggle" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="payment-label">
+                            <span class="dropdown__value dropdown__value--placeholder">Select</span>
+                            <svg class="icon field__caret" aria-hidden="true"><use href="#icon-caret"/></svg>
+                        </button>
+
+                        <div class="dropdown__list" role="listbox" aria-labelledby="payment-label" hidden>
+                            <button type="button" class="dropdown__option" role="option" aria-selected="false" data-value="citadele">
+                                <svg class="icon payment-icon" aria-hidden="true"><use href="#icon-bank"/></svg>
+                                <span>AS Citadele banka</span>
+                            </button>
+                            <button type="button" class="dropdown__option" role="option" aria-selected="false" data-value="luminor">
+                                <svg class="icon payment-icon" aria-hidden="true"><use href="#icon-bank"/></svg>
+                                <span>Luminor Bank AS</span>
+                            </button>
+                            <button type="button" class="dropdown__option" role="option" aria-selected="false" data-value="seb">
+                                <svg class="icon payment-icon" aria-hidden="true"><use href="#icon-bank"/></svg>
+                                <span>SEB Banka AS</span>
+                            </button>
+                            <button type="button" class="dropdown__option" role="option" aria-selected="false" data-value="swedbank">
+                                <svg class="icon payment-icon" aria-hidden="true"><use href="#icon-bank"/></svg>
+                                <span>Swedbank AS</span>
+                            </button>
+                            <button type="button" class="dropdown__option" role="option" aria-selected="false" data-value="card">
+                                <svg class="icon payment-icon" aria-hidden="true"><use href="#icon-card"/></svg>
+                                <span>VISA/MasterCard</span>
+                            </button>
+                            <button type="button" class="dropdown__option" role="option" aria-selected="false" data-value="google-pay">
+                                <svg class="icon payment-icon" aria-hidden="true"><use href="#icon-wallet"/></svg>
+                                <span>Google Pay</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="payment__merchant text">Merchant: RP SIA "Rīgas satiksme", Kleistu iela 28, Riga, LV&#8209;1067, Latvia</p>
+                </div>
+            </div>
+
+            <div class="footer">
+                <label class="terms text">
+                    <input type="checkbox" class="terms__checkbox">
+                    <span>I have read and accept the <a class="link terms__link" href="#">terms of use</a></span>
+                </label>
+                <button type="button" class="button button--action pay" disabled>PAY</button>
+                <a class="link text cancel" href="index.html" data-back>CANCEL</a>
+            </div>
+        </div>
+    </body>
+</html>

@@ -34,6 +34,18 @@
     /* camera */
     --camera-frame-size: min(73vw, 360px);
     --camera-corner-color: #E6E6E6;
+
+    /* fields, cards */
+    --field-radius: 6px;
+    --field-text-color: #1E1E2A;
+    --field-muted-color: #6B6B78;
+    --field-icon-color: #23308F;
+    --amount-background: #D8D8F4;
+    --option-active-background: #E4E2E8;
+
+    /* tables */
+    --table-head-background: #302F66;   /* непрозрачный: под «прилипшей» шапкой проезжают строки */
+    --table-line-color: rgb(255 255 255 / 0.14);
 }
 
 @view-transition { navigation: auto; }
@@ -52,6 +64,25 @@
 
 ::view-transition-new(root) {
   animation: 320ms cubic-bezier(0.2, 0, 0, 1) both slide-from-right;
+}
+
+/* назад: старая страница уезжает вправо поверх, новая возвращается слева (тип ставит common.js) */
+@keyframes slide-to-right {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+
+@keyframes pull-from-left {
+  from { transform: translateX(-25%); }
+  to   { transform: translateX(0); }
+}
+html:active-view-transition-type(back)::view-transition-old(root) {
+  z-index: 1;
+  animation-name: slide-to-right;
+}
+
+html:active-view-transition-type(back)::view-transition-new(root) {
+  animation-name: pull-from-left;
 }
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
@@ -98,6 +129,16 @@ a, button {
     flex-shrink: 0;
 }
 
+/* скрыто с экрана, но читается скринридером */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
 .layout {
     display: flex;
     flex-direction: column;
@@ -105,6 +146,52 @@ a, button {
 
     min-height: 100svh;
     padding-top: env(safe-area-inset-top);   /* чёлка / Dynamic Island */
+}
+/* ровно в экран: сама страница не скроллится, скроллится блок внутри */
+.layout--screen {
+    height: 100svh;
+}
+
+/* шапка экрана: стрелка назад слева, заголовок по центру */
+.page-header {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    height: var(--header-height);
+    padding-inline: var(--layout-padding-inline);
+}
+
+.page-header__back {
+    display: grid;
+    place-items: center;
+
+    width: 44px;
+    height: 44px;
+    margin-left: -17px;   /* сама стрелка на линии отступа, область нажатия больше */
+    padding: 0;
+    border: none;
+
+    font-size: 40px;
+    color: var(--button-action-color);
+
+    background: none;
+}
+
+/* по центру всей шапки, а не остатка после стрелки — длинные заголовки влезают в строку */
+.page-header__title {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+
+    width: max-content;
+    max-width: calc(100% - 2 * 64px);
+
+    font-size: clamp(0.95rem, 4.2vw, 1.1rem);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
 }
 
 .header {
@@ -224,6 +311,10 @@ a, button {
     padding-top: 30px;
     padding-bottom: calc(30px + env(safe-area-inset-bottom));   /* полоска «Домой» */
 }
+.footer--compact {
+    flex-grow: 0;
+    padding-top: 10px;
+}
 
 .text {
     color: var(--text-color);
@@ -232,8 +323,14 @@ a, button {
 .text .icon { vertical-align: -0.15em; }
 
 .button {
+    display: flex;          /* одинаково для <button> и <a class="button"> */
+    align-items: center;
+    justify-content: center;
+
     height: var(--button-height);
+    padding-inline: 16px;
     font-weight: var(--button-weight);
+    text-decoration: none;
 
     border: none;
     border-radius: calc(var(--button-height) / 2);
@@ -244,22 +341,460 @@ a, button {
 
     transition: filter 100ms, transform 100ms;
 }
-.button:active {
+.button:active:not(:disabled) {
     filter: brightness(0.9);
     transform: scale(0.98);
 }
 .button--action {
     background-color: var(--button-action-color);
 }
-.button--inactive {
+.button--inactive,
+.button:disabled {
     color: var(--button-inactive-text-color);
 
     background-color: var(--button-inactive-color);
 }
+.button:disabled { cursor: default; }
 
 .link {
     color: inherit;
     text-decoration: underline;
+}
+
+/* ---------- tables ---------- */
+
+.table {
+    width: 100%;
+    table-layout: fixed;          /* ширины колонок берутся из <col>, а не из содержимого */
+    border-collapse: collapse;
+
+    font-size: clamp(0.85rem, 3.6vw, 1rem);
+    letter-spacing: 0.02em;
+    color: var(--text-color);
+}
+
+.table th,
+.table td {
+    height: 46px;
+    padding: 0 10px;
+
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.table th:first-child,
+.table td:first-child {
+    padding-left: 16px;
+}
+
+.table th {
+    font-weight: 400;
+    background-color: var(--table-head-background);
+}
+
+.table th + th,
+.table td + td {
+    border-left: 1px solid var(--table-line-color);
+}
+
+.table--center th,
+.table--center td {
+    text-align: center;
+}
+
+.table--lines td {
+    border-top: 1px solid var(--table-line-color);
+}
+
+/* прокручиваемая область с «прилипшей» шапкой таблицы */
+.table-scroll {
+    flex: 1 1 0;
+    min-height: 0;
+
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--button-action-color) transparent;
+}
+.table-scroll th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* ---------- fields ---------- */
+
+.field {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    min-height: 56px;
+
+    border-radius: var(--field-radius);
+
+    color: var(--field-muted-color);
+
+    background-color: white;
+}
+
+.field__select {
+    appearance: none;
+
+    width: 100%;
+    min-height: 56px;
+    padding-inline: 16px 44px;
+
+    border: none;
+    border-radius: inherit;
+
+    font-size: 1rem;          /* меньше 16px — iPhone зумит страницу при фокусе */
+    color: inherit;
+
+    background: none;
+}
+
+.field__caret {
+    position: absolute;
+    right: 12px;
+
+    font-size: 24px;
+
+    pointer-events: none;     /* тап проходит сквозь иконку в select */
+}
+
+.period {
+    margin-inline: 16px;
+}
+
+.period__icon {
+    position: absolute;
+    left: 18px;
+
+    font-size: 30px;
+    color: var(--field-icon-color);
+
+    pointer-events: none;
+}
+
+.period__select {
+    padding-left: 60px;
+    letter-spacing: 0.04em;
+}
+
+/* ---------- buy a ticket ---------- */
+
+.purchase {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.order {
+    margin-inline: var(--layout-padding-inline);
+
+    overflow: hidden;
+    border-radius: var(--field-radius);
+
+    color: var(--field-text-color);
+
+    background-color: white;
+}
+
+.order__type {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    margin-inline: 20px;
+
+    border-bottom: 1.5px solid #3A3A4A;
+}
+
+.ticket-badge {
+    position: absolute;
+    left: 0;
+
+    width: 44px;
+    height: 28px;
+
+    pointer-events: none;
+}
+
+.ticket-badge__text {
+    font-size: 8.5px;
+    font-weight: 700;
+    fill: white;
+}
+
+.order__select {
+    appearance: none;
+
+    width: 100%;
+    min-height: 64px;
+    padding: 0 32px 0 58px;
+
+    border: none;
+
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+    color: var(--field-muted-color);
+
+    background: none;
+}
+
+.order__caret {
+    position: absolute;
+    right: 0;
+
+    font-size: 24px;
+    color: var(--field-muted-color);
+
+    pointer-events: none;
+}
+
+.order__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 64px;
+    padding-inline: 20px;
+
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+}
+.order__row--amount {
+    min-height: 72px;
+    background-color: var(--amount-background);
+}
+
+.order__amount {
+    font-size: 1.35rem;
+    font-weight: 700;
+}
+
+.stepper {
+    display: flex;
+    align-items: center;
+    margin-right: -8px;
+}
+
+.stepper__button {
+    --dot-color: var(--button-action-color);
+
+    display: grid;
+    place-items: center;
+
+    width: 36px;             /* область нажатия больше самого кружка */
+    height: 36px;
+    padding: 0;
+    border: none;
+
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    color: white;
+
+    background: radial-gradient(circle, var(--dot-color) 0 11px, transparent 11.5px);
+}
+.stepper__button:disabled {
+    --dot-color: #C4C4CA;
+    cursor: default;
+}
+
+.stepper__value {
+    min-width: 28px;
+
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.payment {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.payment__label {
+    padding-inline: calc(var(--layout-padding-inline) / 2);
+    text-align: left;
+    letter-spacing: 0.02em;
+}
+
+.payment__merchant {
+    padding-inline: 16px;
+
+    font-size: 0.72rem;
+    line-height: 1.35;
+    opacity: 0.75;
+}
+
+.dropdown {
+    position: relative;
+    margin-inline: var(--layout-padding-inline);
+}
+
+.dropdown__toggle {
+    width: 100%;
+    padding: 0 44px 0 16px;
+    border: none;
+
+    text-align: left;
+    font-size: 1.05rem;
+}
+
+.dropdown__value {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    color: var(--field-text-color);
+}
+.dropdown__value--placeholder {
+    color: var(--field-muted-color);
+}
+
+.dropdown__list {
+    position: absolute;
+    top: -14px;
+    left: -16px;
+    right: -16px;
+    z-index: 20;
+
+    display: flex;
+    flex-direction: column;
+
+    padding-block: 10px;
+
+    border-radius: 8px;
+
+    background-color: #FBF9FC;
+    box-shadow: 0 8px 28px rgb(0 0 0 / 0.4);
+}
+
+.dropdown__option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    min-height: 54px;
+    padding-inline: 18px;
+
+    border: none;
+
+    text-align: left;
+    font-size: 1.05rem;
+    color: var(--field-text-color);
+
+    background: none;
+}
+.dropdown__option:hover,
+.dropdown__option:focus-visible,
+.dropdown__option[aria-selected="true"] {
+    outline: none;
+    background-color: var(--option-active-background);
+}
+
+.payment-icon {
+    font-size: 26px;
+    color: var(--field-icon-color);
+}
+
+.terms {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    margin-inline: calc(var(--layout-padding-inline) / -2);   /* галочка левее кнопок, как в оригинале */
+
+    text-align: left;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+}
+
+.terms__link {
+    white-space: nowrap;
+}
+
+.terms__checkbox {
+    appearance: none;
+    flex-shrink: 0;
+
+    display: grid;
+    place-content: center;
+
+    width: 22px;
+    height: 22px;
+    margin: 0;
+
+    border: 1.5px solid var(--text-color);
+    border-radius: 6px;
+}
+.terms__checkbox:checked {
+    border-color: var(--button-action-color);
+    background-color: var(--button-action-color);
+}
+.terms__checkbox:checked::after {
+    content: "";
+
+    width: 6px;
+    height: 11px;
+
+    border: solid var(--button-text-color);
+    border-width: 0 2.5px 2.5px 0;
+
+    transform: translateY(-1px) rotate(45deg);
+}
+
+.cancel {
+    align-self: center;
+    padding: 6px 16px;
+    letter-spacing: 0.04em;
+}
+
+/* ---------- dialog ---------- */
+
+.dialog {
+    width: min(100% - 48px, 360px);
+    margin: auto;               /* сброс * { margin: 0 } убирает центрирование <dialog> */
+    padding: 28px 24px 24px;
+
+    border: none;
+    border-radius: 20px;
+
+    text-align: center;
+    color: var(--field-text-color);
+
+    background-color: white;
+}
+.dialog::backdrop {
+    background-color: rgb(0 0 0 / 0.55);
+}
+
+.dialog__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.dialog__text {
+    margin-top: 8px;
+
+    font-size: 0.9rem;
+    color: var(--field-muted-color);
+    overflow-wrap: anywhere;
+
+    -webkit-user-select: text;
+    user-select: text;          /* распознанный текст можно скопировать */
+}
+
+.dialog__button {
+    width: 100%;
+    margin-top: 24px;
 }
 
 /* ---------- splash ---------- */
@@ -401,37 +936,6 @@ a, button {
   top: env(safe-area-inset-top);
   left: 0;
   right: 0;
-
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-
-  height: var(--header-height);
-  padding-inline: var(--layout-padding-inline);
-}
-
-.camera-layer__back {
-  justify-self: start;
-
-  display: grid;
-  place-items: center;
-
-  width: 44px;
-  height: 44px;
-  margin-left: -17px;   /* сама стрелка на линии отступа, область нажатия больше */
-  padding: 0;
-  border: none;
-
-  font-size: 40px;
-  color: var(--button-action-color);
-
-  background: none;
-}
-
-.camera-layer__title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
 }
 
 .camera-layer__error {

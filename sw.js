@@ -1,14 +1,22 @@
 // Service worker: приложение открывается и без интернета.
 // Стратегия network-first — сначала сеть (правки видны сразу), без сети — кеш.
 
-const CACHE = 'rigas-satiksme-v1';
+const CACHE = 'rigas-satiksme-v2';
 
 const PRECACHE = [
   './',
   'index.html',
   'menu.html',
+  'my-tickets.html',
+  'transactions.html',
+  'trips.html',
+  'buy-ticket.html',
   'style.css',
+  'common.js',
   'app.js',
+  'trips.js',
+  'buy-ticket.js',
+  'vendor/jsQR.js',
   'manifest.webmanifest',
   'img/rigas-satiksme-logo.png',
   'img/icons/icon-192.png',

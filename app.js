@@ -1,3 +1,5 @@
+/* global jsQR */   // функция из vendor/jsQR.js, подключена отдельным <script>
+
 // ---------- камера ----------
 
 const registerBtn = document.querySelector('.register-a-trip');
@@ -5,6 +7,8 @@ const layer = document.querySelector('.camera-layer');
 const video = document.getElementById('cam');
 const closeBtn = document.getElementById('cam-close');
 const cameraError = document.querySelector('.camera-layer__error');
+const qrDialog = document.querySelector('.qr-dialog');
+const qrValue = document.querySelector('.qr-dialog__value');
 let stream = null;
 
 function isCameraOpen() {
@@ -32,6 +36,8 @@ registerBtn.addEventListener('click', async () => {
 
     stream = newStream;
     video.srcObject = stream;
+    video.play().catch(() => { /* слой закрыли раньше, чем видео стартовало */ });
+    scanFrame();
   } catch {
     // отказ в доступе, нет камеры или страница не по https
     cameraError.hidden = false;
@@ -40,6 +46,7 @@ registerBtn.addEventListener('click', async () => {
 
 function closeCamera() {
   layer.classList.remove('camera-layer--open');
+  stopScanning();
 
   if (stream) {
     stopStream(stream);   // иначе камера и индикатор записи остаются включёнными
@@ -53,6 +60,59 @@ closeBtn.addEventListener('click', closeCamera);
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && isCameraOpen()) closeCamera();
 });
+
+
+// ---------- распознавание QR ----------
+
+const MAX_SCAN_SIZE = 720;   // кадр уменьшаем: jsQR быстрее, а QR всё равно читается
+const SCAN_INTERVAL = 150;   // мс между попытками
+
+const scanCanvas = document.createElement('canvas');
+const scanContext = scanCanvas.getContext('2d', { willReadFrequently: true });
+let scanTimer = null;
+
+function scanFrame() {
+  if (!stream) return;
+
+  if (typeof jsQR === 'function' && video.readyState >= video.HAVE_CURRENT_DATA && video.videoWidth > 0) {
+    const scale = Math.min(1, MAX_SCAN_SIZE / Math.max(video.videoWidth, video.videoHeight));
+    const width = Math.round(video.videoWidth * scale);
+    const height = Math.round(video.videoHeight * scale);
+
+    if (scanCanvas.width !== width || scanCanvas.height !== height) {
+      scanCanvas.width = width;
+      scanCanvas.height = height;
+    }
+
+    scanContext.drawImage(video, 0, 0, width, height);
+    const image = scanContext.getImageData(0, 0, width, height);
+    const code = jsQR(image.data, width, height, { inversionAttempts: 'dontInvert' });
+
+    if (code) {
+      onQrFound(code.data);
+      return;
+    }
+  }
+
+  scanTimer = setTimeout(scanFrame, SCAN_INTERVAL);
+}
+
+function stopScanning() {
+  clearTimeout(scanTimer);
+  scanTimer = null;
+}
+
+function onQrFound(value) {
+  stopScanning();
+  video.pause();              // «замораживаем» кадр под плашкой
+  navigator.vibrate?.(80);    // отклик на Android (на iPhone API нет)
+
+  qrValue.textContent = value;
+  qrDialog.showModal();
+}
+
+// OK (form method="dialog") или Esc закрывают плашку → возвращаемся на главный экран
+qrDialog.addEventListener('close', closeCamera);
 
 
 // ---------- подсказка об установке ----------
@@ -129,11 +189,4 @@ if (splashDone) {
     } catch { /* хранилище недоступно */ }
     updateInstallHint();
   }, 900);
-}
-
-
-// ---------- офлайн ----------
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
 }
