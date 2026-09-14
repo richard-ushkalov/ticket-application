@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Rigas Satiksme</title>
+
+        <link rel="stylesheet" href="style.css">
+        <script src="app.js" defer></script>
+    </head>
+    <body>
+        <div class="layout">
+            <div class="header">
+                <img class="header__logo" src="img/rigas-satiksme-logo.png" alt="Rigas Satiksme Logo">
+                <button class="header__burger"></button>
+            </div>
+            <div class="info-header">
+                <p class="info-header__time-ticket text">Time ticket vali till 04.10.2026 13:23</p>
+            </div>
+
+            <div class="main">
+                <button class="register-a-trip button button--action">REGISTER A TRIP</button>
+                <button class="ticket-for-control button button--inactive">TICKET FOR CONTROL</button>
+                <button class="my-tickets button button">MY TICKETS (0)</button>
+
+                <div class="main__additional">
+                    <button class="routes-and-schedules button">ROUTES AND SCHEDULES</button>
+                </div>
+            </div>
+
+            <div class="footer">
+                <button class="footer__buy-a-ticket button button--action">BUY A TICKET</button>
+                <span class="footer__contacts text">Informative phone ☎ <a class="footer_contacts link">20361862</a></span>
+                <span class="footer__version text">Version 2.1.1</span>
+            </div>
+        </div>
+
+        <div class="camera-layer">
+            <video id="cam" autoplay playsinline muted></video>
+            <button type="button" id="cam-close">Закрыть</button>
+        </div>
+    </body>
+</html>

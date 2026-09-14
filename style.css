@@ -1,0 +1,184 @@
+:root {
+    /* background-gradient */
+    --gradient-up: #07063E;
+    --gradient-down: #1110A1;
+
+    /* layout */
+    --layout-padding-inline: 110px;
+
+    /* text */
+    --text-color: white;
+    --button-text-color: black;
+
+    /* header */
+    --header-height: 70px;
+
+    /* info-header */
+    --info-header-height: 50px;
+
+    --info-header-backround: #1410A3;
+
+    /* footer */
+    --footer-height: 140px;
+
+    /* button */
+    --button-height: 60px;
+    --button-weight: 800;
+
+    --button-text-color: #07063E;
+    --button-inactive-text-color: #ADADDF;
+
+    --button-color: white;
+    --button-action-color: #B1D75A;
+    --button-inactive-color: #3A3B83;
+}
+
+@view-transition { navigation: auto; }
+@keyframes slide-from-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes push-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-25%); }
+}
+::view-transition-old(root) {
+  animation: 320ms cubic-bezier(0.2, 0, 0, 1) both push-left;
+}
+
+::view-transition-new(root) {
+  animation: 320ms cubic-bezier(0.2, 0, 0, 1) both slide-from-right;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+#cam-close {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.camera-layer video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: #000;
+
+  visibility: hidden;
+  transform: translateX(100%);
+  transition: transform 320ms cubic-bezier(0.2, 0, 0, 1),
+              visibility 0s linear 320ms;
+}
+
+.camera-layer--open {
+  visibility: visible;
+  transform: translateX(0);
+  transition: transform 320ms cubic-bezier(0.2, 0, 0, 1),
+              visibility 0s;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+body {
+    font-family: "Open Sans", "Segoe UI", system-ui, -apple-system, "Noto Sans", Arial, sans-serif;
+    line-height: 1.5;
+
+    background: linear-gradient(to bottom, var(--gradient-up), var(--gradient-down));
+}
+button, select, textarea, input { font: inherit }
+
+.layout {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    min-height: 100svh;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+
+    padding-inline: var(--layout-padding-inline);
+
+    height: var(--header-height);
+}
+
+.info-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: var(--info-header-height);
+
+    background-color: var(--info-header-backround);
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    padding-inline: var(--layout-padding-inline);
+}
+.main__additional {
+    display: flex;
+    flex-direction: column;
+
+    padding-top: calc(15px * 2 + var(--button-height));
+}
+
+.footer {
+    flex-grow: 1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 15px;
+
+    padding-inline: var(--layout-padding-inline);
+    padding-block: 30px;
+}
+
+.text {
+    color: var(--text-color);
+    text-align: center;
+}
+
+.button {
+    height: var(--button-height);
+    font-weight: var(--button-weight);
+
+    border: none;
+    border-radius: calc(var(--button-height) / 2);
+
+    color: var(--button-text-color);
+
+    background-color: var(--button-color);
+}
+.button--action {
+    background-color: var(--button-action-color);
+}
+.button--inactive {
+    color: var(--button-inactive-text-color);
+
+    background-color: var(--button-inactive-color);
+}
+
+.link { text-decoration: underline; }
