@@ -2,21 +2,57 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
         <title>Rigas Satiksme</title>
 
+        <!-- PWA: установка на экран «Домой» и запуск на весь экран -->
+        <meta name="theme-color" content="#07063E">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="Satiksme">
+        <link rel="manifest" href="manifest.webmanifest">
+        <link rel="apple-touch-icon" href="img/icons/apple-touch-icon.png">
+
+        <!-- iOS: заставка при запуске с экрана «Домой» (свой размер под каждый iPhone) -->
+        <link rel="apple-touch-startup-image" href="img/splash/apple-splash-750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="img/splash/apple-splash-828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="img/splash/apple-splash-1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="img/splash/apple-splash-1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="img/splash/apple-splash-1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="img/splash/apple-splash-1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="img/splash/apple-splash-1260x2736.png" media="(device-width: 420px) and (device-height: 912px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="img/splash/apple-splash-1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="img/splash/apple-splash-1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+        <link rel="apple-touch-startup-image" href="img/splash/apple-splash-1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)">
+
         <link rel="stylesheet" href="style.css">
+
+        <!-- до отрисовки: splash показываем только один раз за сессию -->
+        <script>
+            try {
+                if (sessionStorage.getItem('splash-shown')) document.documentElement.classList.add('no-splash');
+            } catch { /* хранилище недоступно — просто покажем splash */ }
+        </script>
         <script src="app.js" defer></script>
     </head>
     <body>
+        <div class="splash" aria-hidden="true">
+            <img class="splash__logo" src="img/rigas-satiksme-logo.png" alt="">
+        </div>
+
         <div class="layout">
             <div class="header">
                 <img class="header__logo" src="img/rigas-satiksme-logo.png" alt="Rigas Satiksme Logo">
-                <button class="header__burger"></button>
+                <a class="header__burger" href="menu.html" aria-label="Menu">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="currentColor" d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/>
+                    </svg>
+                </a>
             </div>
             <div class="info-header">
-                <p class="info-header__time-ticket text">Time ticket vali till 04.10.2026 13:23</p>
+                <p class="info-header__time-ticket text">Time ticket valid till 04.10.2026 13:23</p>
             </div>
 
             <div class="main">
@@ -31,14 +67,58 @@
 
             <div class="footer">
                 <button class="footer__buy-a-ticket button button--action">BUY A TICKET</button>
-                <span class="footer__contacts text">Informative phone ☎ <a class="footer_contacts link">20361862</a></span>
+                <span class="footer__contacts text">
+                    Informative phone
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="currentColor" d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+                    </svg>
+                    <a class="link" href="tel:20361862">20361862</a>
+                </span>
                 <span class="footer__version text">Version 2.1.1</span>
             </div>
         </div>
 
+        <div class="install-hint" hidden>
+            <p class="install-hint__text text" data-platform="android">Install the app to use it full screen and offline</p>
+            <p class="install-hint__text text" data-platform="ios" hidden>
+                To install the app, tap
+                <svg class="icon" viewBox="0 0 24 24" role="img" aria-label="Share">
+                    <path fill="currentColor" d="M16 5l-1.42 1.42-1.59-1.59V16h-1.98V4.83L9.42 6.42 8 5l4-4 4 4zm4 5v11c0 1.1-.9 2-2 2H6c-1.11 0-2-.9-2-2V10c0-1.11.89-2 2-2h3v2H6v11h12V10h-3V8h3c1.1 0 2 .89 2 2z"/>
+                </svg>
+                and then “Add to Home Screen”
+            </p>
+            <button type="button" class="install-hint__install button button--action" hidden>INSTALL</button>
+            <button type="button" class="install-hint__close" aria-label="Close">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <path d="M18 6 6 18M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
         <div class="camera-layer">
             <video id="cam" autoplay playsinline muted></video>
-            <button type="button" id="cam-close">Закрыть</button>
+
+            <div class="camera-layer__frame">
+                <span class="camera-layer__corner camera-layer__corner--tl"></span>
+                <span class="camera-layer__corner camera-layer__corner--tr"></span>
+                <span class="camera-layer__corner camera-layer__corner--bl"></span>
+                <span class="camera-layer__corner camera-layer__corner--br"></span>
+            </div>
+
+            <div class="camera-layer__header">
+                <button type="button" class="camera-layer__back" id="cam-close" aria-label="Back">
+                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                </button>
+                <h1 class="camera-layer__title text">SCAN QR CODE</h1>
+            </div>
+
+            <p class="camera-layer__error text" hidden>Camera access denied</p>
+
+            <div class="camera-layer__footer">
+                <button type="button" class="button">ENTER THE CODE MANUALLY</button>
+            </div>
         </div>
     </body>
 </html>

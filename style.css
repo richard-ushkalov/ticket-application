@@ -4,11 +4,10 @@
     --gradient-down: #1110A1;
 
     /* layout */
-    --layout-padding-inline: 60px;
+    --layout-padding-inline: clamp(24px, 13vw, 60px);
 
     /* text */
     --text-color: white;
-    --button-text-color: black;
 
     /* header */
     --header-height: 70px;
@@ -31,6 +30,10 @@
     --button-color: white;
     --button-action-color: #B1D75A;
     --button-inactive-color: #3A3B83;
+
+    /* camera */
+    --camera-frame-size: min(73vw, 360px);
+    --camera-corner-color: #E6E6E6;
 }
 
 @view-transition { navigation: auto; }
@@ -57,42 +60,19 @@
   }
 }
 
-#cam-close {
-  position: absolute;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.camera-layer video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.camera-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: #000;
-
-  visibility: hidden;
-  transform: translateX(100%);
-  transition: transform 320ms cubic-bezier(0.2, 0, 0, 1),
-              visibility 0s linear 320ms;
-}
-
-.camera-layer--open {
-  visibility: visible;
-  transform: translateX(0);
-  transition: transform 320ms cubic-bezier(0.2, 0, 0, 1),
-              visibility 0s;
-}
-
 * {
     box-sizing: border-box;
     margin: 0;
+}
+
+/* атрибут hidden должен скрывать даже элементы с display: flex/grid */
+[hidden] { display: none !important; }
+
+/* поведение «как у приложения» */
+html {
+    background-color: var(--gradient-up);   /* без белого фона при оттяжке */
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;              /* без pull-to-refresh и «резинки» */
 }
 
 body {
@@ -100,8 +80,23 @@ body {
     line-height: 1.5;
 
     background: linear-gradient(to bottom, var(--gradient-up), var(--gradient-down));
+
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
 }
 button, select, textarea, input { font: inherit }
+a, button {
+    touch-action: manipulation;     /* без задержки и зума по двойному тапу */
+    cursor: pointer;
+}
+
+.icon {
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+}
 
 .layout {
     display: flex;
@@ -109,6 +104,7 @@ button, select, textarea, input { font: inherit }
     gap: 10px;
 
     min-height: 100svh;
+    padding-top: env(safe-area-inset-top);   /* чёлка / Dynamic Island */
 }
 
 .header {
@@ -122,8 +118,37 @@ button, select, textarea, input { font: inherit }
 }
 
 .header__logo {
+  display: block;
   height: 50px;
   width: auto;
+}
+
+.header__burger {
+    display: grid;
+    place-items: center;
+
+    width: 32px;
+    height: 32px;
+
+    border-radius: 50%;
+
+    font-size: 20px;
+    color: var(--gradient-up);
+
+    background-color: var(--text-color);
+}
+
+.header__logout {
+    display: grid;
+    place-items: center;
+
+    padding: 0;
+    border: none;
+
+    font-size: 30px;
+    color: var(--button-action-color);
+
+    background: none;
 }
 
 .info-header {
@@ -150,6 +175,43 @@ button, select, textarea, input { font: inherit }
     padding-top: calc(15px * 2 + var(--button-height));
 }
 
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+
+    padding-inline: var(--layout-padding-inline);
+    padding-top: 40px;
+}
+
+.menu__item {
+    display: flex;
+    align-items: center;
+    gap: clamp(12px, 4vw, 20px);
+
+    font-size: clamp(0.9rem, 4vw, 1rem);   /* на узких экранах длинная строка влезает в одну линию */
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: 0.02em;
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.menu__icon {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+
+    width: clamp(60px, 16vw, 88px);
+    aspect-ratio: 1;
+
+    border: 1.5px solid rgb(255 255 255 / 0.85);
+    border-radius: 12px;
+
+    font-size: clamp(24px, 7vw, 36px);
+    color: var(--button-action-color);
+}
+
 .footer {
     flex-grow: 1;
 
@@ -159,13 +221,15 @@ button, select, textarea, input { font: inherit }
     gap: 15px;
 
     padding-inline: var(--layout-padding-inline);
-    padding-block: 30px;
+    padding-top: 30px;
+    padding-bottom: calc(30px + env(safe-area-inset-bottom));   /* полоска «Домой» */
 }
 
 .text {
     color: var(--text-color);
     text-align: center;
 }
+.text .icon { vertical-align: -0.15em; }
 
 .button {
     height: var(--button-height);
@@ -177,6 +241,12 @@ button, select, textarea, input { font: inherit }
     color: var(--button-text-color);
 
     background-color: var(--button-color);
+
+    transition: filter 100ms, transform 100ms;
+}
+.button:active {
+    filter: brightness(0.9);
+    transform: scale(0.98);
 }
 .button--action {
     background-color: var(--button-action-color);
@@ -187,4 +257,201 @@ button, select, textarea, input { font: inherit }
     background-color: var(--button-inactive-color);
 }
 
-.link { text-decoration: underline; }
+.link {
+    color: inherit;
+    text-decoration: underline;
+}
+
+/* ---------- splash ---------- */
+
+.splash {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+
+    display: grid;
+    place-items: center;
+
+    background: linear-gradient(to bottom, var(--gradient-up), var(--gradient-down));
+
+    transition: opacity 300ms ease,
+                visibility 0s linear 300ms;
+}
+
+.splash__logo {
+    width: 60%;         /* как на iOS-заставке из img/splash */
+    max-width: 400px;
+}
+
+.splash--hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.no-splash .splash { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .splash { transition: none; }
+}
+
+/* ---------- install hint ---------- */
+
+.install-hint {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    z-index: 50;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 8px 12px 20px;
+
+    border-radius: 20px;
+
+    background-color: var(--info-header-backround);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.4);
+}
+
+.install-hint__text {
+    flex-grow: 1;
+
+    font-size: 0.95rem;
+    line-height: 1.35;
+    text-align: left;
+}
+
+.install-hint__install {
+    height: 40px;
+    padding-inline: 18px;
+}
+
+.install-hint__close {
+    display: grid;
+    place-items: center;
+
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: none;
+
+    font-size: 22px;
+    color: var(--text-color);
+
+    background: none;
+}
+
+/* ---------- camera ---------- */
+
+.camera-layer video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;   /* тень рамки не вылезает на страницу во время выезда */
+  background: #000;
+
+  visibility: hidden;
+  transform: translateX(100%);
+  transition: transform 320ms cubic-bezier(0.2, 0, 0, 1),
+              visibility 0s linear 320ms;
+}
+
+.camera-layer--open {
+  visibility: visible;
+  transform: translateX(0);
+  transition: transform 320ms cubic-bezier(0.2, 0, 0, 1),
+              visibility 0s;
+}
+
+.camera-layer__frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+
+  width: var(--camera-frame-size);
+  aspect-ratio: 1;
+
+  box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.6);   /* затемнение вокруг рамки */
+}
+
+.camera-layer__corner {
+  position: absolute;
+  width: 18%;
+  aspect-ratio: 1;
+
+  border: 3px solid var(--camera-corner-color);
+}
+.camera-layer__corner--tl { top: 0;    left: 0;  border-right: none; border-bottom: none; }
+.camera-layer__corner--tr { top: 0;    right: 0; border-left: none;  border-bottom: none; }
+.camera-layer__corner--bl { bottom: 0; left: 0;  border-right: none; border-top: none; }
+.camera-layer__corner--br { bottom: 0; right: 0; border-left: none;  border-top: none; }
+
+.camera-layer__header {
+  position: absolute;
+  top: env(safe-area-inset-top);
+  left: 0;
+  right: 0;
+
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+
+  height: var(--header-height);
+  padding-inline: var(--layout-padding-inline);
+}
+
+.camera-layer__back {
+  justify-self: start;
+
+  display: grid;
+  place-items: center;
+
+  width: 44px;
+  height: 44px;
+  margin-left: -17px;   /* сама стрелка на линии отступа, область нажатия больше */
+  padding: 0;
+  border: none;
+
+  font-size: 40px;
+  color: var(--button-action-color);
+
+  background: none;
+}
+
+.camera-layer__title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.camera-layer__error {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+
+  width: var(--camera-frame-size);
+  padding: 16px;
+}
+
+.camera-layer__footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(36px + env(safe-area-inset-bottom));
+
+  display: flex;
+  flex-direction: column;
+
+  padding-inline: calc(var(--layout-padding-inline) * 0.8);
+}
