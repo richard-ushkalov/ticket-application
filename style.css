@@ -4,7 +4,7 @@
     --gradient-down: #1110A1;
 
     /* layout */
-    --layout-padding-inline: 110px;
+    --layout-padding-inline: 60px;
 
     /* text */
     --text-color: white;
@@ -14,7 +14,7 @@
     --header-height: 70px;
 
     /* info-header */
-    --info-header-height: 50px;
+    --info-header-height: 40px;
 
     --info-header-backround: #1410A3;
 
@@ -113,11 +113,17 @@ button, select, textarea, input { font: inherit }
 
 .header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
 
     padding-inline: var(--layout-padding-inline);
 
     height: var(--header-height);
+}
+
+.header__logo {
+  height: 50px;
+  width: auto;
 }
 
 .info-header {
